@@ -34,7 +34,7 @@ function GenHtml(files, file) {
     return indexFile;
   }
 
-  if (files[file].name.includes("still" || "static")) {
+  if (files[file].name.includes("Static")) {
     // console.log("found static");
     const staticFile =
       "<!doctype html>" +

@@ -14,7 +14,7 @@ const Header = ({ title }) => {
 };
 
 Header.defaultProps = {
-  title: "Digital Display Configuration Tool",
+  title: "Digital Display Content Configuration Tool",
 };
 
 Header.propTypes = {

@@ -26,6 +26,14 @@ const AddTask = () => {
   const [zipurl, setZipURL] = useState("");
   const [zipinuseurl, setZipInUseURL] = useState("");
 
+  // function Language() {
+  //   const [laguages, setLanguage] = useState(0);
+
+  //   function increment() {
+  //     setSteps(prevState => prevState + 1);
+  //   }
+  // }
+
   return (
     <form className="add-form">
       <div className="form-control">
@@ -66,6 +74,41 @@ const AddTask = () => {
           onClick={createBaseFolder}
         />
       </div>
+      <form>
+        <label>
+          en-US
+          <input
+            className="form-control-check"
+            type="checkbox"
+            name="en-US"
+            value="en-US"
+            label="junk"
+          />
+        </label>
+        <label>
+          es-ES
+          <input
+            className="form-control-check"
+            type="checkbox"
+            name="es-ES"
+            value="es-ES"
+          />
+          fr-FR
+          <input
+            className="form-control-check"
+            type="checkbox"
+            name="fr-FR"
+            value="fr-FR"
+          />
+        </label>
+        de-DE
+        <input
+          className="form-control-check"
+          type="checkbox"
+          name="de-DE"
+          value="de-DE"
+        />
+      </form>
 
       <div className="form-control">
         <input
@@ -78,30 +121,47 @@ const AddTask = () => {
       </div>
 
       <div className="form-control">
-        <p> 
-        {tsurl.length > 0 && (
-          <li {...(tsurl ? { tsurl } : {})}>Preview TS = {tsurl}</li>
-        )}
+        <p>
+          {tsurl.length > 0 && (
+            // <li {...(tsurl ? { tsurl } : {})}>Preview TS = {tsurl}</li>
+            <li>
+              <a href={tsurl} target="_blank">
+                Preview TopScreen = {tsurl}
+              </a>
+            </li>
+          )}
 
-        {staticurl.length > 0 && (
-          <li {...(staticurl ? { staticurl } : {})}>
-            Preview InUse = {staticurl}
-          </li>
-        )}
+          {staticurl.length > 0 && (
+            <li>
+              <a href={staticurl} target="_blank">
+                Preview InUse = {staticurl}
+              </a>
+            </li>
+          )}
 
-        {mp4url.length > 0 && (
-          <li {...(mp4url ? { mp4url } : {})}> Preview Video = {mp4url}</li>
-        )}
+          {mp4url.length > 0 && (
+            <li>
+              <a href={mp4url} target="_blank">
+                Preview Video = {mp4url}
+              </a>
+            </li>
+          )}
 
-        {zipurl.length > 0 && (
-          <li {...(zipurl ? { zipurl } : {})}>digitalDisplay = {zipurl}</li>
-        )}
+          {zipurl.length > 0 && (
+            <li>
+              <a href={zipurl} target="_blank">
+                digitalDisplay = {zipurl}
+              </a>
+            </li>
+          )}
 
-        {zipinuseurl.length > 0 && (
-          <li {...(zipinuseurl ? { zipinuseurl } : {})}>
-            ZIP digitalDisplayInUse = {zipinuseurl}
-          </li>
-        )}
+          {zipinuseurl.length > 0 && (
+            <li>
+              <a href={zipinuseurl} target="_blank">
+                digitalDisplayInUse = {zipinuseurl}
+              </a>
+            </li>
+          )}
         </p>
       </div>
     </form>
@@ -132,24 +192,29 @@ const AddTask = () => {
     const files = e.target.files;
 
     const path = `${date}/${ticket}/${directory}/`;
+    const path1 = `./${date}/${ticket}/${directory}/`;
 
     try {
       for (let file = 0; file < files.length; file++) {
         // Look for the top-screen.
-        if (files[file].name.includes("960")) {
+        if (files[file].name.includes("1120")) {
           console.log("Found top-screen file...");
+
           const blobData = new Blob([GenTopScrHtml(files, file, path)]);
-          uploadTopScreen(
+
+          await uploadTopScreen(
             "" + files[file].name.slice(0, -3) + "html",
             blobData
           );
+
           uploadFile(files[file].name, files[file]);
+
           setTsurl(
-            `http://kodakmomentsstage.kodakalaris.com/voyager/en-US/${files[
+            `http://kodakmomentsstage.kodakalaris.com/voyager/marcomm/v2/en-US/${files[
               file
             ].name.slice(0, -3)}html`
           );
-          console.log(`this is the topscreen URL... ${tsurl}`);
+          console.log(`this is the top-screen URL... ${tsurl}`);
         }
 
         // Find the MP4 Video and create index.html.
@@ -210,32 +275,36 @@ const AddTask = () => {
     const ticketDir = directoryClient.getDirectoryClient(ticket);
     const zipFileDest = ticketDir.getDirectoryClient(directory);
 
-    const content = imageData;
     //const fileName = fileName;
     const fileClient = zipFileDest.getFileClient(fileName);
-    await fileClient.create(content.size);
+    await fileClient.create(imageData.size);
 
-    console.log(`Blob size = ${content.size}`);
+    console.log(`Blob size = ${imageData.size}`);
 
-    const output = await fileClient.uploadData(content);
+    const output = await fileClient.uploadData(imageData);
 
     return output;
   }
 
   async function uploadTopScreen(fileName, imageData) {
-    const shareClient = serviceClientWithSaS.getShareClient(shareName);
-    const directoryClient = shareClient.getDirectoryClient("en-US");
+    var language = ["en-US", "es-ES", "fr-FR", "de-DE"];
 
-    const content = imageData;
-    //  const fileName = fileName;
-    const fileClient = directoryClient.getFileClient(fileName);
-    await fileClient.create(content.size);
+    for (var i = 0; i < language.length; i++) {
+      console.log("this is the lang... " + language[i]);
+      const shareClient = serviceClientWithSaS.getShareClient(shareName);
+      const directoryClient = shareClient.getDirectoryClient("marcomm");
+      const marcommVer = directoryClient.getDirectoryClient("v2");
+      const languageDir = marcommVer.getDirectoryClient(language[i]);
 
-    console.log(`Blob size = ${content.size}`);
+      //  const fileName = fileName;
+      const fileClient = languageDir.getFileClient(fileName);
+      await fileClient.create(imageData.size);
 
-    const output = await fileClient.uploadData(content);
+      console.log(`Blob size = ${imageData.size}`);
+      const output = await fileClient.uploadData(imageData);
+    }
 
-    return output;
+    // return output;
   }
 };
 

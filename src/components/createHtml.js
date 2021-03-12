@@ -72,7 +72,7 @@ function GenTopScrHtml(files, file, path) {
     "<!DOCTYPE html>" +
     '<html style="width:100%; height:100%; margin:0; padding: 0; overflow:hidden;">' +
     '<body style="width:100%; height:100%; margin:0; padding: 0; overflow:hidden;">' +
-    '<img src="../' +
+    '<img src="../../../' +
     path +
     files[file].name +
     '" style="height:100%; width:100%;" />' +
